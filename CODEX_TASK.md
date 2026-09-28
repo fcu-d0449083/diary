@@ -32,4 +32,5 @@ The public repository may contain JavaScript/CSS and encrypted ciphertext, but n
 
 ## Preserve the diary viewer
 
-Keep the calendar heatmap, date navigation (including the bottom mobile controls), Chinese/Thai interface toggle, encrypted password gate, and client-side decryption behavior. Do not add file import/upload or in-page password rotation unless the user requests those features again.
+Keep the calendar heatmap, date navigation (including bottom mobile controls that return to the conversation header after changing dates), Chinese/Thai interface toggle, encrypted password gate, and client-side decryption behavior. Do not add file import/upload or in-page password rotation unless the user requests those features again.
+
