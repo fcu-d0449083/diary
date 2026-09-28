@@ -4,41 +4,21 @@
 
 The chat payload is encrypted client-side using AES-256-GCM. The encryption key is derived from the password via PBKDF2-HMAC-SHA256 with 600,000 iterations.
 
-The deployed static site contains:
+The deployed static site contains UI source code, public salt and IV, the iteration count, and encrypted chat ciphertext. The repository and GitHub Pages site are public so Pages can run on the current plan. Anyone can visit the site or download the ciphertext and source code. The password gate controls client-side decryption only; it does not make the website private. Use a long, unique password to make offline guessing impractical.
 
-- UI source code
-- salt and IV (these are not secrets)
-- PBKDF2 iteration count
-- encrypted chat ciphertext
+## Browser behavior
 
-The repository and GitHub Pages site are public so Pages can run on the current plan. Anyone can visit the site or download the ciphertext and source code. The password gate controls client-side decryption only; it does not make the website private. Use a long, unique password to make offline guessing impractical.
+The page has no TXT upload/import control and no in-page password-change control. It decrypts the bundled ciphertext locally and holds decrypted diary content in memory while the page is open. The password is stored as plaintext in this tab’s `sessionStorage` so the same tab auto-unlocks after refresh; a newly opened tab does not share it, and closing the tab normally clears it. Any script executing on this site can read the stored password. The site does not persist a plaintext diary copy.
 
-## Uploaded TXT files
-
-The TXT importer runs entirely in the browser after the password gate opens. It does not send the selected file to a server. Imported text is parsed in memory, and the merged diary is encrypted with AES-256-GCM using the entered password, a new random salt, a new random IV, and 600,000 PBKDF2-HMAC-SHA256 iterations before it is written to IndexedDB. IndexedDB stores ciphertext only. The password is retained in page memory for the current session so the app can save later imports.
-
-The encrypted update is local to that browser profile and origin. It is not committed, uploaded, or synchronized, and clearing site data deletes it. A static GitHub Pages site cannot update its published bundled ciphertext from a browser upload; distributing an update to other devices requires a separate encrypted export/import or a new deployment workflow.
-
-The importer replaces all records on dates present in an uploaded export and preserves other dates. It keeps user-authored message bodies unchanged and only applies the documented system-text conversions. Imports require a UTF-8 LINE text export and are limited to 25 MiB.
-
-It does **not** need to contain:
-
-- plaintext chat exports
-- plaintext decryption password
+For compatibility, the page may read a previously saved encrypted diary update from this browser's IndexedDB after unlocking. It does not write new updates. This browser-local ciphertext is not uploaded or synchronized; clearing the site's browser data removes it.
 
 ## Threat model
 
-A public static site cannot prevent attackers from downloading the ciphertext and attempting offline password guesses. Therefore password strength matters. A long, unique password is substantially safer than a short PIN.
-
-AES-GCM authentication ensures an incorrect key/password cannot silently produce a valid diary payload.
-
-The password-change control is available only after the current password unlocks the diary. It re-encrypts the current in-memory diary using a fresh random salt and IV, then downloads a replacement `index.html` containing ciphertext but no password. The downloaded file must be redeployed to change the password for all visitors. A short password requires an explicit in-page acknowledgement and remains vulnerable to offline guessing.
+A public static site cannot prevent attackers from downloading the ciphertext and attempting offline password guesses. Therefore password strength matters. A long, unique password is substantially safer than a short PIN. AES-GCM authentication ensures an incorrect password cannot silently produce a valid diary payload.
 
 ## Operational rules
 
 - Never place the password in JavaScript, README, commit messages, GitHub Actions logs, issues, or repository secrets unless a future deployment architecture explicitly requires it.
-- Never commit raw LINE TXT files.
-- Re-encryption should use a fresh random salt and IV.
-- Never store imported plaintext in localStorage, IndexedDB, logs, or generated repository files.
-- Treat browser storage as encrypted but local: browser profile access and offline password guessing against ciphertext remain in scope.
-
+- Never commit raw LINE TXT files, plaintext diary exports, or private notes.
+- Any future data encryption must use a fresh random salt and IV.
+- Treat browser storage as local to the browser profile; anyone with access to that profile can access its stored data.
