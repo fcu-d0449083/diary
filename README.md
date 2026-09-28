@@ -15,35 +15,20 @@ Encrypted static LINE diary viewer designed for GitHub Pages.
 
 ## Security model
 
-The LINE chat payload embedded in `index.html` is **not plaintext**. It is encrypted with:
+The LINE chat payload embedded in `index.html` is encrypted with AES-256-GCM. The key is derived in the browser using PBKDF2-HMAC-SHA256 with 600,000 iterations, a random salt, and a random IV. The password is not stored in source code.
 
-- AES-256-GCM
-- PBKDF2-HMAC-SHA256 key derivation
-- 600,000 PBKDF2 iterations
-- random salt
-- random IV
+The site decrypts the bundled payload in the browser after the visitor enters the password. Decrypted messages remain in page memory. To keep refreshes convenient, the password is held in this tab’s `sessionStorage` and the same tab auto-unlocks after refresh; closing the tab normally clears it. This is browser-side plaintext storage, so scripts running on this site can read it. The page does not offer a file upload/import control or an in-page password-change control. On mobile, duplicate previous/next-day controls are available after the conversation so users can move between days without scrolling back to the top.
 
-The browser derives the decryption key locally from the visitor-entered password. The password itself is not stored in plaintext in `index.html`.
-
-After unlocking, **更改全站密碼** can re-encrypt the current diary with a new password and download a replacement `index.html`. The downloaded file must replace the repository's `index.html` and be redeployed before all visitors use the new password. Passwords are entered and processed in the browser; they are not included in the downloaded source. Because the repository is public, choose a long, unique password.
+To preserve encrypted updates created by an earlier version, the page may restore an existing encrypted update from this browser's IndexedDB after unlock. This compatibility read does not create, modify, or upload updates. Clearing site data removes that browser-local copy.
 
 ## Published site
 
-The public GitHub Pages site is <https://fcu-d0449083.github.io/diary/>. Anyone can open the site and download the public repository, including its encrypted ciphertext. The password gate protects access to decrypted diary content; it does not restrict access to the website or source files. Use a long, unique password because public ciphertext permits offline password guesses.
-
-## Import a Chinese LINE export
-
-After unlocking, choose **匯入中文 LINE TXT** (or the Thai label) to load a UTF-8 LINE export. The browser preserves chat text, converts the supported LINE system labels and morning/afternoon times, and replaces existing entries for dates in the imported file. Other dates remain in the diary.
-
-The import is processed locally. The full updated diary is encrypted again with AES-256-GCM and a fresh random salt and IV before it is saved in this browser's IndexedDB. Plaintext is held in memory only while the page is open; the TXT is not uploaded. Updates stay in this browser and do not change the published website or synchronize to other devices. Clearing this site's browser data removes the saved update.
-
-The converter follows [`LINE_ZH_TO_THAI_RULES.md`](LINE_ZH_TO_THAI_RULES.md). It does not translate or edit ordinary chat text. Matching dates are replaced as a group to prevent importing the same export twice from duplicating messages.
+The public GitHub Pages site is <https://fcu-d0449083.github.io/diary/>. Anyone can open the site and download the public repository, including its encrypted ciphertext. The password gate controls client-side decryption; it does not make the site or source private. Use a long, unique password because public ciphertext allows offline guesses.
 
 ## Important
 
-Do **not** commit the original LINE TXT exports, the unencrypted diary HTML, or private notes. `.gitignore` is included to reduce accidental commits.
+Do **not** commit original LINE TXT exports, unencrypted diary HTML, private notes, or any file containing the decryption password. `.gitignore` helps prevent accidental commits.
 
 ## Repository
 
 Target repository: `fcu-d0449083/diary`
-
