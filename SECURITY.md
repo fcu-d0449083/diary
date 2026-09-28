@@ -11,6 +11,8 @@ The deployed static site contains:
 - PBKDF2 iteration count
 - encrypted chat ciphertext
 
+The repository and GitHub Pages site are public so Pages can run on the current plan. Anyone can visit the site or download the ciphertext and source code. The password gate controls client-side decryption only; it does not make the website private. Use a long, unique password to make offline guessing impractical.
+
 ## Uploaded TXT files
 
 The TXT importer runs entirely in the browser after the password gate opens. It does not send the selected file to a server. Imported text is parsed in memory, and the merged diary is encrypted with AES-256-GCM using the entered password, a new random salt, a new random IV, and 600,000 PBKDF2-HMAC-SHA256 iterations before it is written to IndexedDB. IndexedDB stores ciphertext only. The password is retained in page memory for the current session so the app can save later imports.
