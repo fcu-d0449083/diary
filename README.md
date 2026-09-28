@@ -25,6 +25,10 @@ The LINE chat payload embedded in `index.html` is **not plaintext**. It is encry
 
 The browser derives the decryption key locally from the visitor-entered password. The password itself is not stored in plaintext in `index.html`.
 
+## Published site
+
+The public GitHub Pages site is <https://fcu-d0449083.github.io/diary/>. Anyone can open the site and download the public repository, including its encrypted ciphertext. The password gate protects access to decrypted diary content; it does not restrict access to the website or source files. Use a long, unique password because public ciphertext permits offline password guesses.
+
 ## Import a Chinese LINE export
 
 After unlocking, choose **匯入中文 LINE TXT** (or the Thai label) to load a UTF-8 LINE export. The browser preserves chat text, converts the supported LINE system labels and morning/afternoon times, and replaces existing entries for dates in the imported file. Other dates remain in the diary.
