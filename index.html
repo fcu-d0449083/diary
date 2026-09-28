@@ -26,11 +26,11 @@ button,input{font:inherit}
 .legend{display:flex;justify-content:flex-end;align-items:center;gap:4px;color:var(--muted);font-size:10px;margin-top:10px}.sw{width:12px;height:12px;border-radius:3px}
 .jump{padding:0 18px 16px;display:grid;grid-template-columns:1fr auto;gap:8px}.jump input{border:1px solid var(--line);background:white;border-radius:12px;padding:9px 10px;color:var(--ink)}.jump button{border:0;border-radius:12px;padding:0 14px;background:var(--accent);color:white;cursor:pointer}
 .summary{margin-top:auto;border-top:1px solid var(--line);padding:14px 18px 18px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#fff;border:1px solid #eadfce;border-radius:14px;padding:10px;text-align:center}.stat b{display:block;font-family:Georgia,serif;font-size:18px}.stat span{font-size:10px;color:var(--muted)}
-.import-panel{padding:0 18px 12px}.import-panel button{border:1px solid #d9cebd;border-radius:12px;padding:10px 12px;background:#fffaf3;color:#51483e;font-weight:700;cursor:pointer}.import-panel button:disabled{opacity:.6;cursor:wait}.import-panel p{font-size:11px;line-height:1.45;color:var(--muted);margin:8px 0 0}.import-status{min-height:1em;color:#536b45!important}
-.password-change{margin-top:8px}.password-change[hidden]{display:none}.password-change input[type=password]{width:100%;margin:5px 0;padding:9px;border:1px solid var(--line);border-radius:9px;background:white}.password-change label{display:block;margin:8px 0;font-size:11px;color:var(--muted)}.password-change .weak-ack{display:flex;gap:7px;align-items:flex-start}.password-change .weak-ack input{margin:2px 0 0}.password-change-status{min-height:1em;color:#536b45!important}
+.session-hint{font-size:11px;line-height:1.4;color:var(--muted);margin:8px 0 0}.saved-data-status:empty{display:none}.saved-data-status{padding:0 18px 8px;font-size:11px;color:var(--muted)}
 .content{min-width:0;display:flex;flex-direction:column}.dayhead{padding:24px 28px 18px;border-bottom:1px solid var(--line);position:sticky;top:22px;z-index:5;background:rgba(255,250,241,.96);backdrop-filter:blur(10px)}.dayhead-row{display:flex;justify-content:space-between;gap:18px;align-items:flex-start}.date-title{font-family:Georgia,"Noto Serif Thai",serif;font-size:27px;margin:0}.date-sub{color:var(--muted);font-size:12px;margin-top:6px}.navday{display:flex;gap:8px}.navday button{border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px 12px;cursor:pointer}.navday button:disabled{opacity:.35;cursor:not-allowed}
 .messages{padding:25px 28px 36px;min-height:70vh;background-image:linear-gradient(rgba(118,92,62,.025) 1px,transparent 1px);background-size:100% 28px}.message{display:flex;margin:8px 0}.message.mine{justify-content:flex-end}.bubble{max-width:min(760px,78%);border-radius:16px;padding:10px 13px;box-shadow:0 2px 8px rgba(45,34,22,.05);border:1px solid rgba(90,70,50,.09);white-space:pre-wrap;word-break:break-word;line-height:1.5;font-size:14px}.mine .bubble{background:var(--mine);border-bottom-right-radius:5px}.theirs .bubble{background:var(--theirs);border-bottom-left-radius:5px}.sender{font-weight:700;font-size:11px;margin-bottom:4px;color:#6c6258}.time{font-size:9px;color:#958a7d;margin-top:5px;text-align:right}.system{justify-content:center}.system .bubble{background:var(--system);color:#6f665d;border-radius:999px;padding:6px 11px;font-size:11px;box-shadow:none;max-width:88%;text-align:center}.media{font-weight:700;letter-spacing:.1px}.empty-state{display:grid;place-items:center;text-align:center;color:var(--muted);min-height:55vh;padding:30px}.empty-state .book{font-size:54px;margin-bottom:10px}
-@media(max-width:900px){.app{grid-template-columns:1fr;padding:10px;gap:10px}.sidebar{position:relative;top:0;height:auto}.summary{margin-top:0}.dayhead{top:0}.messages{padding:18px 12px}.bubble{max-width:88%}.brand h1{font-size:23px}}
+.dayfoot{display:none}
+@media(max-width:900px){.dayfoot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:rgba(255,250,241,.97)}.dayfoot strong{font-family:Georgia,"Noto Serif Thai",serif;font-size:16px}.dayfoot .navday button{padding:9px 10px}.app{grid-template-columns:1fr;padding:10px;gap:10px}.sidebar{position:relative;top:0;height:auto}.summary{margin-top:0}.dayhead{top:0}.messages{padding:18px 12px}.bubble{max-width:88%}.brand h1{font-size:23px}}
 </style>
 
 <style id="lock-style">
@@ -68,6 +68,7 @@ button,input{font:inherit}
     <h2>Henry & Natcha Diary</h2>
     <p>请输入密码 / กรุณาใส่รหัสผ่าน</p>
     <input id="unlockPassword" type="password" autocomplete="current-password" placeholder="Password">
+    <p class="session-hint">此分頁會暫存密碼，重新整理後自動解鎖；關閉分頁後清除 / รหัสผ่านจะถูกจำในแท็บนี้และปลดล็อกอัตโนมัติเมื่อรีเฟรช</p>
     <button id="unlockBtn">打开日记 / เปิดไดอารี่</button>
     <div id="unlockError" class="err"></div>
     <div class="note">聊天资料已加密，并在浏览器本机解密。</div>
@@ -89,12 +90,13 @@ button,input{font:inherit}
       <div class="legend"><span id="less"></span><i class="sw" style="background:var(--h1)"></i><i class="sw" style="background:var(--h2)"></i><i class="sw" style="background:var(--h3)"></i><i class="sw" style="background:var(--h4)"></i><i class="sw" style="background:var(--h5)"></i><span id="more"></span></div>
     </div>
     <div class="jump"><input id="datePick" type="date"><button id="goBtn"></button></div>
-    <div class="import-panel"><input id="diaryTxtFile" type="file" accept=".txt,text/plain" hidden><button id="importTxtBtn" type="button"></button><p id="importHint"></p><p id="importStatus" class="import-status" role="status" aria-live="polite"></p><button id="changePasswordBtn" type="button">更改全站密碼 / เปลี่ยนรหัสผ่านเว็บไซต์</button><div id="changePasswordPanel" class="password-change" hidden><p>輸入新密碼兩次，會在此瀏覽器重新加密並下載新的 index.html。下載檔案需重新發布才會套用到所有人。公開網站的密文可被離線猜測，請使用長且唯一的密碼。</p><label>新密碼 / รหัสผ่านใหม่<input id="newDiaryPassword" type="password" autocomplete="new-password"></label><label>再次輸入 / ยืนยันรหัสผ่าน<input id="confirmDiaryPassword" type="password" autocomplete="new-password"></label><label class="weak-ack"><input id="weakPasswordAck" type="checkbox"><span>我了解短密碼在公開網站上較容易被猜中 / เข้าใจว่ารหัสผ่านสั้นเดาง่ายกว่า</span></label><button id="exportReencryptedBtn" type="button">重新加密並下載 index.html</button><p id="changePasswordStatus" class="password-change-status" role="status" aria-live="polite"></p></div></div>
+    <p id="savedDataStatus" class="saved-data-status" role="status" aria-live="polite"></p>
     <div class="summary"><div class="stat"><b id="sDays"></b><span id="sDaysL"></span></div><div class="stat"><b id="sMsgs"></b><span id="sMsgsL"></span></div><div class="stat"><b id="sToday"></b><span id="sTodayL"></span></div></div>
   </aside>
   <main class="panel content" id="conversation">
     <header class="dayhead"><div class="dayhead-row"><div><h2 id="dateTitle" class="date-title"></h2><div id="dateSub" class="date-sub"></div></div><div class="navday"><button id="prevDay"></button><button id="nextDay"></button></div></div></header>
     <section id="messages" class="messages"></section>
+    <footer id="dayfoot" class="dayfoot"><strong id="dateTitleBottom"></strong><div class="navday"><button id="prevDayBottom"></button><button id="nextDayBottom"></button></div></footer>
   </main>
 </div>
 </div>
@@ -106,7 +108,6 @@ const ENC = {
   iterations:600000
 };
 let DATA = null;
-let SESSION_PASSWORD = null;
 let SAVED_UPDATE_WARNING = false;
 let allDates = [];
 let daySet = new Set();
@@ -131,36 +132,6 @@ async function decryptDiary(password){
   );
   return JSON.parse(new TextDecoder().decode(plain));
 }
-async function encryptDiary(data,password){
-  const enc=new TextEncoder(),salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
-  const baseKey=await crypto.subtle.importKey("raw",enc.encode(password),{name:"PBKDF2"},false,["deriveKey"]);
-  const key=await crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:ENC.iterations,hash:"SHA-256"},baseKey,{name:"AES-GCM",length:256},false,["encrypt"]);
-  const cipher=await crypto.subtle.encrypt({name:"AES-GCM",iv},key,enc.encode(JSON.stringify(data)));
-  const toB64=a=>{let s='';for(const b of a)s+=String.fromCharCode(b);return btoa(s)};
-  return {version:1,salt:toB64(salt),iv:toB64(iv),data:toB64(new Uint8Array(cipher)),iterations:ENC.iterations};
-}
-async function exportReencryptedSite(){
-  const status=document.getElementById('changePasswordStatus'),button=document.getElementById('exportReencryptedBtn');
-  const nextPassword=document.getElementById('newDiaryPassword').value,confirmation=document.getElementById('confirmDiaryPassword').value;
-  status.textContent='';
-  if(!SESSION_PASSWORD||!DATA){status.textContent='請先解鎖日記 / กรุณาปลดล็อกก่อน';return}
-  if(!nextPassword||nextPassword!==confirmation){status.textContent='兩次密碼不一致 / รหัสผ่านไม่ตรงกัน';return}
-  if(nextPassword.length<12&&!document.getElementById('weakPasswordAck').checked){status.textContent='短密碼風險較高，請勾選確認或改用長密碼 / โปรดยืนยันความเสี่ยงหรือใช้รหัสผ่านที่ยาวขึ้น';return}
-  if(nextPassword===SESSION_PASSWORD){status.textContent='新密碼需與目前密碼不同 / รหัสผ่านใหม่ต้องต่างจากเดิม';return}
-  button.disabled=true;status.textContent='重新加密中… / กำลังเข้ารหัสใหม่…';
-  try{
-    const encrypted=await encryptDiary(DATA,nextPassword);
-    const response=await fetch(location.href,{cache:'no-store'});if(!response.ok)throw new Error('無法讀取目前網站檔案');
-    const source=await response.text(),marker=/const ENC = \{[\s\S]*?\n\};/;
-    if(!marker.test(source))throw new Error('找不到加密資料區塊');
-    const replacement='const ENC = '+JSON.stringify(encrypted)+';';
-    const updated=source.replace(marker,replacement),blob=new Blob([updated],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob),link=document.createElement('a');
-    link.href=url;link.download='index.html';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
-    status.textContent='已下載新的加密 index.html；請將它重新發布到 GitHub，網站才會對所有人使用新密碼。';
-    document.getElementById('newDiaryPassword').value='';document.getElementById('confirmDiaryPassword').value='';
-  }catch(e){status.textContent='改密失敗：'+(e.message||'未知錯誤')}
-  finally{button.disabled=false}
-}
 async function decryptEncrypted(payload,password){
   const enc=new TextEncoder(),baseKey=await crypto.subtle.importKey('raw',enc.encode(password),{name:'PBKDF2'},false,['deriveKey']);
   const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64bytes(payload.salt),iterations:payload.iterations||ENC.iterations,hash:'SHA-256'},baseKey,{name:'AES-GCM',length:256},false,['decrypt']);
@@ -169,7 +140,6 @@ async function decryptEncrypted(payload,password){
 }
 function openDiaryStore(){return new Promise((resolve,reject)=>{const req=indexedDB.open('lineDiarySecureStore',1);req.onupgradeneeded=()=>req.result.createObjectStore('encrypted');req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
 async function readSavedDiary(){const db=await openDiaryStore();return new Promise((resolve,reject)=>{const req=db.transaction('encrypted','readonly').objectStore('encrypted').get('latest');req.onsuccess=()=>{db.close();resolve(req.result||null)};req.onerror=()=>{db.close();reject(req.error)}})}
-async function saveEncryptedDiary(value){const db=await openDiaryStore();return new Promise((resolve,reject)=>{const tx=db.transaction('encrypted','readwrite');tx.objectStore('encrypted').put(value,'latest');tx.oncomplete=()=>{db.close();resolve()};tx.onerror=()=>{db.close();reject(tx.error)};tx.onabort=()=>{db.close();reject(tx.error)}})}
 function refreshDataState(){
   allDates=Object.keys(DATA.days).sort();daySet=new Set(allDates);maxCount=Math.max(...allDates.map(d=>DATA.days[d].length),1);
   DATA.meta.firstDate=allDates[0]||'';DATA.meta.lastDate=allDates[allDates.length-1]||'';DATA.meta.dayCount=allDates.length;
@@ -177,15 +147,16 @@ function refreshDataState(){
   if(!selected||!daySet.has(selected))selected=allDates[allDates.length-1]||null;
   viewMonth=selected?selected.slice(0,7):'2026-01';
 }
-async function unlockDiary(){
+async function unlockDiary(passwordOverride=null){
   const btn=document.getElementById("unlockBtn");
   const input=document.getElementById("unlockPassword");
   const err=document.getElementById("unlockError");
   btn.disabled=true; btn.textContent="解密中… / กำลังถอดรหัส…"; err.textContent="";
   try{
-    SESSION_PASSWORD=input.value;
-    DATA=await decryptDiary(SESSION_PASSWORD);
-    try{const saved=await readSavedDiary();if(saved)DATA=await decryptEncrypted(saved,SESSION_PASSWORD)}catch(e){SAVED_UPDATE_WARNING=true}
+    const password=passwordOverride===null?input.value:passwordOverride;
+    DATA=await decryptDiary(password);
+    try{const saved=await readSavedDiary();if(saved)DATA=await decryptEncrypted(saved,password)}catch(e){SAVED_UPDATE_WARNING=true}
+    try{sessionStorage.setItem("lineDiaryTabUnlock",password)}catch(e){}
     refreshDataState();
     document.getElementById("datePick").min=DATA.meta.firstDate||"";
     document.getElementById("datePick").max=DATA.meta.lastDate||"";
@@ -194,16 +165,18 @@ async function unlockDiary(){
     document.getElementById("diaryApp").style.display="block";
     renderAll();
     input.value="";
-    if(SAVED_UPDATE_WARNING)document.getElementById('importStatus').textContent=locale==='th'?'ไม่สามารถเปิดข้อมูลนำเข้าที่บันทึกไว้ได้ กำลังแสดงข้อมูลบนเว็บไซต์':'无法读取浏览器中已保存的更新，目前显示网站内置资料';
+    if(SAVED_UPDATE_WARNING)document.getElementById('savedDataStatus').textContent=locale==='th'?'ไม่สามารถเปิดข้อมูลเข้ารหัสเดิมในเบราว์เซอร์ได้ กำลังแสดงข้อมูลบนเว็บไซต์':'无法读取此浏览器中已有的加密更新，目前显示网站内置资料';
   }catch(e){
+    try{if(sessionStorage.getItem("lineDiaryTabUnlock")===password)sessionStorage.removeItem("lineDiaryTabUnlock")}catch(storageError){}
     err.textContent="密码错误 / รหัสผ่านไม่ถูกต้อง";
-    input.select();
+    if(passwordOverride===null)input.select();
   }finally{
     btn.disabled=false; btn.textContent="打开日记 / เปิดไดอารี่";
   }
 }
 document.getElementById("unlockBtn").onclick=unlockDiary;
 document.getElementById("unlockPassword").addEventListener("keydown",e=>{if(e.key==="Enter")unlockDiary();});
+try{const rememberedPassword=sessionStorage.getItem("lineDiaryTabUnlock");if(rememberedPassword)unlockDiary(rememberedPassword)}catch(e){}
 
 let locale = localStorage.getItem('lineDiaryLocale') || 'zh';
 
@@ -240,49 +213,6 @@ function localizeSystem(msg,sender){
 }
 function isSystem(i){return !i.s || /^☎ /.test(i.m) || i.m==='您已收回訊息' || i.m.endsWith('已收回訊息') || i.m.includes('已設定公告') || i.m.includes('已將相簿名稱由')}
 function isMedia(m){return /^\[(貼圖|照片|影片|相簿|檔案|記事本|語音訊息|聯絡資訊)\]/.test(m)}
-function toThaiSystemText(msg){
- const media={'[貼圖]':'[สติกเกอร์]','[照片]':'[รูปภาพ]','[影片]':'[วิดีโอ]','[相簿]':'[อัลบั้ม]','[檔案]':'[ไฟล์]','[記事本]':'[โน้ต]','[語音訊息]':'[ข้อความเสียง]','[聯絡資訊]':'[ข้อมูลติดต่อ]'};
- for(const k in media)if(msg.startsWith(k))return media[k]+msg.slice(k.length);
- const exact={'☎ 您已取消通話':'☎ คุณยกเลิกการโทร','☎ 無人接聽':'☎ ไม่มีผู้รับสาย','☎ 未接來電':'☎ สายที่ไม่ได้รับ','您已收回訊息':'คุณยกเลิกข้อความแล้ว'};
- if(exact[msg])return exact[msg];
- const duration=msg.match(/^☎ 通話時間(.*)$/);if(duration)return `☎ ระยะเวลาการโทร ${duration[1].trimStart()}`;
- const recalled=msg.match(/^(.+?)已收回訊息$/);if(recalled)return `${recalled[1]} ยกเลิกข้อความแล้ว`;
- const notice=msg.match(/^(.+?)已設定公告$/);if(notice)return `${notice[1]} ได้ตั้งประกาศแล้ว`;
- const album=msg.match(/^(.+?)已將相簿名稱由「(.*)」改為「(.*)」$/);if(album)return `${album[1]} เปลี่ยนชื่ออัลบั้มจาก “${album[2]}” เป็น “${album[3]}”`;
- return msg;
-}
-function looksLikeSystemText(msg){return isMedia(msg)||/^☎ (您已取消通話|無人接聽|未接來電|通話時間)/.test(msg)||msg==='您已收回訊息'||/已收回訊息$|已設定公告$|已將相簿名稱由/.test(msg)}
-function lineTimeTo24h(prefix,hour,minute){let h=Number(hour);if(h<1||h>12||Number(minute)>59)throw new Error('時間格式不正確');if(prefix==='上午'){if(h===12)h=0}else if(h!==12)h+=12;return `${String(h).padStart(2,'0')}:${minute}`}
-function parseLineExport(text){
- const rows=text.replace(/^\uFEFF/,'').replace(/\r\n?/g,'\n').split('\n'),days={},residual=[],dateRe=/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})(?:\s*[（(](?:星期)?([一二三四五六日天])[）)])?\s*$/;
- const timeRe=/^(上午|下午)\s*(\d{1,2}):(\d{2})\t([^\t]*)\t(.*)$/;
- let activeDate=null,current=null,count=0;
- const flush=()=>{if(current){days[activeDate].push(current);current=null}};
- for(let index=0;index<rows.length;index++){
-   const row=rows[index],date=row.match(dateRe);
-   if(date){flush();const y=Number(date[1]),m=Number(date[2]),d=Number(date[3]),check=new Date(y,m-1,d);if(check.getFullYear()!==y||check.getMonth()!==m-1||check.getDate()!==d)throw new Error(`第 ${index+1} 行日期無效`);const weekday=['日','一','二','三','四','五','六'].indexOf(date[4]);if(weekday>=0&&weekday!==check.getDay())throw new Error(`第 ${index+1} 行星期與日期不符`);activeDate=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;days[activeDate]??=[];continue}
-   const entry=row.match(timeRe);
-   if(entry){flush();if(!activeDate)throw new Error(`第 ${index+1} 行訊息前缺少日期標題`);current={t:lineTimeTo24h(entry[1],entry[2],entry[3]),s:entry[4],m:entry[5]};const th=toThaiSystemText(current.m);if(th!==current.m)current.th=th;if(looksLikeSystemText(current.m)&&toThaiSystemText(current.m)===current.m)residual.push(index+1);count++;continue}
-   if(/^(上午|下午)\s*\d{1,2}:\d{2}\t/.test(row))throw new Error(`第 ${index+1} 行時間或 TAB 欄位格式不正確`);
-   if(activeDate&&current)current.m+=`\n${row}`;
- }
- flush();if(!count)throw new Error('找不到符合 LINE 中文匯出格式的訊息');if(residual.length)throw new Error(`以下行的系統文字未能轉換為泰文：${residual.join(', ')}`);return {days,count};
-}
-async function importLineTxt(file){
- const status=document.getElementById('importStatus'),button=document.getElementById('importTxtBtn');status.textContent='';
- if(!file)return;if(file.size>25*1024*1024){status.textContent=locale==='th'?'ไฟล์มีขนาดใหญ่เกินไป (สูงสุด 25 MB)':'檔案太大（上限 25 MB）';return}
- button.disabled=true;status.textContent=locale==='th'?'กำลังอ่านและเข้ารหัส…':'讀取並加密中…';
- try{
-   const parsed=parseLineExport(await file.text()),dates=Object.keys(parsed.days).sort(),existing=dates.filter(d=>Object.prototype.hasOwnProperty.call(DATA.days,d));
-   const message=locale==='th'?`นำเข้า ${parsed.count} ข้อความจาก ${dates.length} วัน แทนที่ข้อมูลเดิมในวันที่ซ้ำหรือไม่?`:`將匯入 ${parsed.count} 則訊息、共 ${dates.length} 天；同日期的舊對話會被取代，是否繼續？`;
-   if(!window.confirm(message)){status.textContent=locale==='th'?'ยกเลิกการนำเข้าแล้ว':'已取消匯入';return}
-   const next={...DATA,meta:{...DATA.meta},days:{...DATA.days}};for(const day of dates)next.days[day]=parsed.days[day];
-   const encrypted=await encryptDiary(next,SESSION_PASSWORD);await saveEncryptedDiary(encrypted);DATA=next;refreshDataState();
-   document.getElementById('datePick').min=DATA.meta.firstDate||'';document.getElementById('datePick').max=DATA.meta.lastDate||'';document.getElementById('datePick').value=selected||'';renderAll();
-   status.textContent=locale==='th'?`บันทึกข้อมูลแบบเข้ารหัสแล้ว (${parsed.count} ข้อความ, ${existing.length} วันที่แทนที่)`:`已加密保存（${parsed.count} 則訊息，取代 ${existing.length} 個重疊日期）`;
- }catch(e){status.textContent=(locale==='th'?'นำเข้าไม่สำเร็จ：':'匯入失敗：')+(e.message||'未知錯誤')}
- finally{button.disabled=false;document.getElementById('diaryTxtFile').value=''}
-}
 function level(n){if(!n)return 0;const r=Math.log1p(n)/Math.log1p(maxCount);return Math.max(1,Math.min(5,Math.ceil(r*5)))}
 
 function renderCalendar(){
@@ -297,7 +227,8 @@ function renderCalendar(){
  document.getElementById('less').textContent=UI[locale].less;document.getElementById('more').textContent=UI[locale].more;
 }
 function nearestExisting(ds,dir=1){let d=parseDate(ds);for(let i=0;i<800;i++){const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;if(daySet.has(k))return k;d.setDate(d.getDate()+dir)}return null}
-function selectDate(ds){selected=ds;viewMonth=ds.slice(0,7);document.getElementById('datePick').value=ds;renderAll();document.getElementById('conversation').scrollIntoView({behavior:'smooth',block:'start'})}
+function selectDate(ds,scrollToHeader=true){selected=ds;viewMonth=ds.slice(0,7);document.getElementById('datePick').value=ds;renderAll();if(scrollToHeader)document.getElementById('conversation').scrollIntoView({behavior:'smooth',block:'start'})}
+function selectDateFromBottom(ds){selectDate(ds,false);requestAnimationFrame(()=>document.getElementById('dayfoot').scrollIntoView({behavior:'smooth',block:'end'}))}
 function renderMessages(){
  const arr=DATA.days[selected]||[], box=document.getElementById('messages');document.getElementById('dateTitle').textContent=dateLong(selected);document.getElementById('dateSub').textContent=`${arr.length} ${UI[locale].entries}`;
  if(!arr.length){box.innerHTML=`<div class="empty-state"><div><div class="book">📖</div><div>${UI[locale].empty}</div></div></div>`;return}
@@ -308,19 +239,24 @@ function renderMessages(){
  }
  box.innerHTML=out;
 }
-function renderNav(){const idx=allDates.indexOf(selected),pb=document.getElementById('prevDay'),nb=document.getElementById('nextDay');pb.textContent='‹ '+UI[locale].prev;nb.textContent=UI[locale].next+' ›';pb.disabled=idx<=0;nb.disabled=idx<0||idx>=allDates.length-1;pb.onclick=()=>idx>0&&selectDate(allDates[idx-1]);nb.onclick=()=>idx<allDates.length-1&&selectDate(allDates[idx+1])}
+function renderNav(){
+ const idx=allDates.indexOf(selected),prevLabel='‹ '+UI[locale].prev,nextLabel=UI[locale].next+' ›';
+ const pairs=[['prevDay','nextDay',false],['prevDayBottom','nextDayBottom',true]];
+ for(const [prevId,nextId,atBottom] of pairs){
+  const pb=document.getElementById(prevId),nb=document.getElementById(nextId);
+  pb.textContent=prevLabel;nb.textContent=nextLabel;pb.disabled=idx<=0;nb.disabled=idx<0||idx>=allDates.length-1;
+  pb.onclick=()=>idx>0&&(atBottom?selectDateFromBottom(allDates[idx-1]):selectDate(allDates[idx-1]));
+  nb.onclick=()=>idx<allDates.length-1&&(atBottom?selectDateFromBottom(allDates[idx+1]):selectDate(allDates[idx+1]));
+ }
+ document.getElementById('dateTitleBottom').textContent=dateLong(selected);
+}
 function renderSummary(){document.getElementById('sDays').textContent=DATA.meta.dayCount.toLocaleString();document.getElementById('sMsgs').textContent=DATA.meta.messageCount.toLocaleString();document.getElementById('sToday').textContent=(DATA.days[selected]?.length||0).toLocaleString();document.getElementById('sDaysL').textContent=UI[locale].days;document.getElementById('sMsgsL').textContent=UI[locale].msgs;document.getElementById('sTodayL').textContent=UI[locale].today;document.getElementById('goBtn').textContent=UI[locale].go;document.getElementById('range').textContent=rangeText()}
-function renderAll(){document.documentElement.lang=locale==='th'?'th':'zh-CN';document.getElementById('zhBtn').classList.toggle('active',locale==='zh');document.getElementById('thBtn').classList.toggle('active',locale==='th');document.getElementById('importTxtBtn').textContent=UI[locale].import;document.getElementById('importHint').textContent=UI[locale].importHint;renderCalendar();renderMessages();renderNav();renderSummary()}
 
 document.getElementById('zhBtn').onclick=()=>{locale='zh';localStorage.setItem('lineDiaryLocale',locale);renderAll()};
 document.getElementById('thBtn').onclick=()=>{locale='th';localStorage.setItem('lineDiaryLocale',locale);renderAll()};
 document.getElementById('prevMonth').onclick=()=>{let [y,m]=viewMonth.split('-').map(Number);m--;if(m<1){m=12;y--}viewMonth=`${y}-${String(m).padStart(2,'0')}`;renderCalendar()};
 document.getElementById('nextMonth').onclick=()=>{let [y,m]=viewMonth.split('-').map(Number);m++;if(m>12){m=1;y++}viewMonth=`${y}-${String(m).padStart(2,'0')}`;renderCalendar()};
 document.getElementById('goBtn').onclick=()=>{const v=document.getElementById('datePick').value;if(v){const hit=daySet.has(v)?v:nearestExisting(v,1)||nearestExisting(v,-1);if(hit)selectDate(hit)}};
-document.getElementById('importTxtBtn').onclick=()=>document.getElementById('diaryTxtFile').click();
-document.getElementById('diaryTxtFile').addEventListener('change',e=>importLineTxt(e.target.files?.[0]));
-document.getElementById('changePasswordBtn').onclick=()=>{const panel=document.getElementById('changePasswordPanel');panel.hidden=!panel.hidden};
-document.getElementById('exportReencryptedBtn').onclick=exportReencryptedSite;
 
 </script>
 </body></html>
