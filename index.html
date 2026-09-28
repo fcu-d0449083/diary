@@ -30,6 +30,7 @@ button,input{font:inherit}
 .content{min-width:0;display:flex;flex-direction:column}.dayhead{padding:24px 28px 18px;border-bottom:1px solid var(--line);position:sticky;top:22px;z-index:5;background:rgba(255,250,241,.96);backdrop-filter:blur(10px)}.dayhead-row{display:flex;justify-content:space-between;gap:18px;align-items:flex-start}.date-title{font-family:Georgia,"Noto Serif Thai",serif;font-size:27px;margin:0}.date-sub{color:var(--muted);font-size:12px;margin-top:6px}.navday{display:flex;gap:8px}.navday button{border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px 12px;cursor:pointer}.navday button:disabled{opacity:.35;cursor:not-allowed}
 .messages{padding:25px 28px 36px;min-height:70vh;background-image:linear-gradient(rgba(118,92,62,.025) 1px,transparent 1px);background-size:100% 28px}.message{display:flex;margin:8px 0}.message.mine{justify-content:flex-end}.bubble{max-width:min(760px,78%);border-radius:16px;padding:10px 13px;box-shadow:0 2px 8px rgba(45,34,22,.05);border:1px solid rgba(90,70,50,.09);white-space:pre-wrap;word-break:break-word;line-height:1.5;font-size:14px}.mine .bubble{background:var(--mine);border-bottom-right-radius:5px}.theirs .bubble{background:var(--theirs);border-bottom-left-radius:5px}.sender{font-weight:700;font-size:11px;margin-bottom:4px;color:#6c6258}.time{font-size:9px;color:#958a7d;margin-top:5px;text-align:right}.system{justify-content:center}.system .bubble{background:var(--system);color:#6f665d;border-radius:999px;padding:6px 11px;font-size:11px;box-shadow:none;max-width:88%;text-align:center}.media{font-weight:700;letter-spacing:.1px}.empty-state{display:grid;place-items:center;text-align:center;color:var(--muted);min-height:55vh;padding:30px}.empty-state .book{font-size:54px;margin-bottom:10px}
 .dayfoot{display:none}
+.translation-tools{display:flex;align-items:center;gap:8px;margin-top:9px;flex-wrap:wrap}.translation-tools button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 10px;color:var(--ink);cursor:pointer;font-size:12px}.translation-tools button:disabled{opacity:.55;cursor:wait}.translation-tools button[hidden]{display:none}.translation-status{font-size:11px;color:var(--muted)}.translated-text{margin-top:8px;padding-top:8px;border-top:1px dashed rgba(90,70,50,.22);color:#594a3a}.translated-label{font-weight:700;font-size:11px;display:block;margin-bottom:3px}
 @media(max-width:900px){.dayfoot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:rgba(255,250,241,.97)}.dayfoot strong{font-family:Georgia,"Noto Serif Thai",serif;font-size:16px}.dayfoot .navday button{padding:9px 10px}.app{grid-template-columns:1fr;padding:10px;gap:10px}.sidebar{position:relative;top:0;height:auto}.summary{margin-top:0}.dayhead{top:0}.messages{padding:18px 12px}.bubble{max-width:88%}.brand h1{font-size:23px}}
 </style>
 
@@ -94,7 +95,7 @@ button,input{font:inherit}
     <div class="summary"><div class="stat"><b id="sDays"></b><span id="sDaysL"></span></div><div class="stat"><b id="sMsgs"></b><span id="sMsgsL"></span></div><div class="stat"><b id="sToday"></b><span id="sTodayL"></span></div></div>
   </aside>
   <main class="panel content" id="conversation">
-    <header class="dayhead"><div class="dayhead-row"><div><h2 id="dateTitle" class="date-title"></h2><div id="dateSub" class="date-sub"></div></div><div class="navday"><button id="prevDay"></button><button id="nextDay"></button></div></div></header>
+    <header class="dayhead"><div class="dayhead-row"><div><h2 id="dateTitle" class="date-title"></h2><div id="dateSub" class="date-sub"></div><div class="translation-tools"><button id="translateThaiBtn" type="button" hidden></button><span id="translationStatus" class="translation-status" role="status" aria-live="polite"></span></div></div><div class="navday"><button id="prevDay"></button><button id="nextDay"></button></div></div></header>
     <section id="messages" class="messages"></section>
     <footer id="dayfoot" class="dayfoot"><strong id="dateTitleBottom"></strong><div class="navday"><button id="prevDayBottom"></button><button id="nextDayBottom"></button></div></footer>
   </main>
@@ -114,6 +115,9 @@ let daySet = new Set();
 let maxCount = 1;
 let selected = null;
 let viewMonth = '2026-01';
+const THAI_TRANSLATE_ENDPOINT='https://translate.argosopentech.com/translate';
+const thaiTranslationCache=new Map();
+let thaiTranslationsVisible=false,thaiTranslationBusy=false,thaiTranslationRun=0,thaiTranslationController=null;
 
 function b64bytes(s){
   const raw=atob(s), out=new Uint8Array(raw.length);
@@ -217,6 +221,41 @@ function isSystem(i){return !i.s || /^☎ /.test(i.m) || i.m==='您已收回訊�
 function isMedia(m){return /^\[(貼圖|照片|影片|相簿|檔案|記事本|語音訊息|聯絡資訊)\]/.test(m)}
 function level(n){if(!n)return 0;const r=Math.log1p(n)/Math.log1p(maxCount);return Math.max(1,Math.min(5,Math.ceil(r*5)))}
 
+function currentThaiRows(){return (DATA?.days?.[selected]||[]).map((item,index)=>({item,index})).filter(({item})=>!isSystem(item)&&!isMedia(item.m)&&/[\u0E00-\u0E7F]/.test(item.m||''))}
+function thaiTranslationKey(date,index){return `${date}:${index}`}
+function updateThaiTranslationControls(){
+ const button=document.getElementById('translateThaiBtn'),status=document.getElementById('translationStatus');if(!button)return;
+ const rows=currentThaiRows(),allCached=rows.length>0&&rows.every(({index})=>thaiTranslationCache.has(thaiTranslationKey(selected,index)));
+ button.hidden=rows.length===0;button.disabled=thaiTranslationBusy;
+ button.textContent=thaiTranslationBusy?(locale==='th'?'กำลังแปล…':'翻譯中…'):allCached?(thaiTranslationsVisible?(locale==='th'?'ซ่อนคำแปลจีน':'隱藏中文翻譯'):(locale==='th'?'แสดงคำแปลจีน':'顯示中文翻譯')):(locale==='th'?'แปลบทสนทนาภาษาไทยเป็นจีน':'翻譯泰文對話');
+ if(!rows.length)status.textContent='';
+}
+function buildThaiTranslationBatches(rows){const batches=[];let batch=[],chars=0;for(const row of rows){const len=String(row.item.m).length;if(batch.length&&(batch.length>=20||chars+len>1200)){batches.push(batch);batch=[];chars=0}batch.push(row);chars+=len}if(batch.length)batches.push(batch);return batches}
+async function toggleThaiTranslation(){
+ if(thaiTranslationBusy)return;
+ const date=selected,rows=currentThaiRows(),cacheKeys=rows.map(({index})=>thaiTranslationKey(date,index));if(!rows.length)return;
+ const allCached=cacheKeys.every(key=>thaiTranslationCache.has(key));
+ if(allCached){thaiTranslationsVisible=!thaiTranslationsVisible;updateThaiTranslationControls();renderMessages();return}
+ const approved=confirm('此功能會把目前日期的泰文訊息本文傳送到 ArgosOpenTech 免費公開翻譯示範服務（https://translate.argosopentech.com），翻譯成繁體中文。說話者欄位與訊息時間不會附上；若訊息本文本身含有姓名或其他個人資訊，也會一併送出。服務如何處理請求資料依其政策為準。要繼續嗎？\n\nปุ่มนี้จะส่งเฉพาะเนื้อหาข้อความภาษาไทยของวันที่เลือกไปยังบริการสาธิตแปลภาษาฟรี ArgosOpenTech เพื่อแปลเป็นภาษาจีนตัวเต็ม โดยไม่ส่งชื่อผู้พูดหรือเวลา แต่ถ้าเนื้อหาข้อความมีชื่อหรือข้อมูลส่วนบุคคล ข้อมูลนั้นจะถูกส่งไปด้วย โปรดตรวจสอบนโยบายของบริการก่อนดำเนินการต่อ');
+ if(!approved)return;
+ const run=++thaiTranslationRun,controller=new AbortController();thaiTranslationController=controller;thaiTranslationBusy=true;updateThaiTranslationControls();
+ const status=document.getElementById('translationStatus'),batches=buildThaiTranslationBatches(rows);
+ try{
+  for(let i=0;i<batches.length;i++){
+   const batch=batches[i];status.textContent=locale==='th'?`กำลังแปล ${i+1}/${batches.length}…`:`翻譯中 ${i+1}/${batches.length}…`;
+   const response=await fetch(THAI_TRANSLATE_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:batch.map(({item})=>String(item.m)),source:'th',target:'zt',format:'text'}),credentials:'omit',cache:'no-store',referrerPolicy:'no-referrer',signal:controller.signal});
+   if(!response.ok)throw new Error(`translation service ${response.status}`);
+   const result=await response.json(),translated=Array.isArray(result.translatedText)?result.translatedText:[result.translatedText];
+   if(translated.length!==batch.length||translated.some(value=>typeof value!=='string'))throw new Error('unexpected translation response');
+   batch.forEach(({index},j)=>thaiTranslationCache.set(thaiTranslationKey(date,index),translated[j]));
+   if(run!==thaiTranslationRun)return;
+  }
+  status.textContent='';
+  thaiTranslationsVisible=true;
+ }catch(error){if(run===thaiTranslationRun&&!controller.signal.aborted)status.textContent=locale==='th'?'แปลไม่สำเร็จ โปรดลองอีกครั้ง':'翻譯失敗，請稍後重試'}
+ finally{if(run===thaiTranslationRun){thaiTranslationBusy=false;thaiTranslationController=null;updateThaiTranslationControls();renderMessages()}}
+}
+
 function renderCalendar(){
  document.getElementById('monthTitle').textContent=monthLong(viewMonth);
  const [y,m]=viewMonth.split('-').map(Number), first=new Date(y,m-1,1), last=new Date(y,m,0); const cal=document.getElementById('calendar');cal.innerHTML='';
@@ -229,17 +268,18 @@ function renderCalendar(){
  document.getElementById('less').textContent=UI[locale].less;document.getElementById('more').textContent=UI[locale].more;
 }
 function nearestExisting(ds,dir=1){let d=parseDate(ds);for(let i=0;i<800;i++){const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;if(daySet.has(k))return k;d.setDate(d.getDate()+dir)}return null}
-function selectDate(ds,scrollToHeader=true){selected=ds;viewMonth=ds.slice(0,7);document.getElementById('datePick').value=ds;renderAll();if(scrollToHeader)document.getElementById('conversation').scrollIntoView({behavior:'smooth',block:'start'})}
+function selectDate(ds,scrollToHeader=true){if(ds!==selected){thaiTranslationRun++;thaiTranslationController?.abort();thaiTranslationController=null;thaiTranslationBusy=false;thaiTranslationsVisible=false;document.getElementById('translationStatus').textContent=''}selected=ds;viewMonth=ds.slice(0,7);document.getElementById('datePick').value=ds;renderAll();if(scrollToHeader)document.getElementById('conversation').scrollIntoView({behavior:'smooth',block:'start'})}
 function selectDateFromBottom(ds){selectDate(ds,true)}
 function renderMessages(){
  const arr=DATA.days[selected]||[], box=document.getElementById('messages');document.getElementById('dateTitle').textContent=dateLong(selected);document.getElementById('dateSub').textContent=`${arr.length} ${UI[locale].entries}`;
- if(!arr.length){box.innerHTML=`<div class="empty-state"><div><div class="book">📖</div><div>${UI[locale].empty}</div></div></div>`;return}
+ if(!arr.length){box.innerHTML=`<div class="empty-state"><div><div class="book">📖</div><div>${UI[locale].empty}</div></div></div>`;updateThaiTranslationControls();return}
  const me='Henry XU';let out='';
- for(const i of arr){
+ for(let index=0;index<arr.length;index++){const i=arr[index];
    if(isSystem(i)){out+=`<div class="message system"><div class="bubble">${esc(localizeSystem(i.m,i.s))}<div class="time">${esc(i.t)}</div></div></div>`;continue}
-   const cls=i.s===me?'mine':'theirs', m=locale==='th'&&i.th?i.th:localizeSystem(i.m,i.s);out+=`<div class="message ${cls}"><div class="bubble ${isMedia(i.m)?'media':''}"><div class="sender">${esc(i.s)}</div>${esc(m)}<div class="time">${esc(i.t)}</div></div></div>`;
+   const cls=i.s===me?'mine':'theirs',m=locale==='th'&&i.th?i.th:localizeSystem(i.m,i.s),translated=thaiTranslationsVisible?thaiTranslationCache.get(thaiTranslationKey(selected,index)):null,translation=translated?`<div class="translated-text"><span class="translated-label">${locale==='th'?'คำแปลภาษาจีน：':'中文翻譯：'}</span>${esc(translated)}</div>`:'';out+=`<div class="message ${cls}"><div class="bubble ${isMedia(i.m)?'media':''}"><div class="sender">${esc(i.s)}</div>${esc(m)}${translation}<div class="time">${esc(i.t)}</div></div></div>`;
  }
  box.innerHTML=out;
+ updateThaiTranslationControls();
 }
 function renderNav(){
  const idx=allDates.indexOf(selected),prevLabel='‹ '+UI[locale].prev,nextLabel=UI[locale].next+' ›';
@@ -257,10 +297,10 @@ function renderSummary(){document.getElementById('sDays').textContent=DATA.meta.
 function renderAll(){renderCalendar();renderMessages();renderNav();renderSummary()}
 document.getElementById('zhBtn').onclick=()=>{locale='zh';localStorage.setItem('lineDiaryLocale',locale);renderAll()};
 document.getElementById('thBtn').onclick=()=>{locale='th';localStorage.setItem('lineDiaryLocale',locale);renderAll()};
+document.getElementById('translateThaiBtn').onclick=toggleThaiTranslation;
 document.getElementById('prevMonth').onclick=()=>{let [y,m]=viewMonth.split('-').map(Number);m--;if(m<1){m=12;y--}viewMonth=`${y}-${String(m).padStart(2,'0')}`;renderCalendar()};
 document.getElementById('nextMonth').onclick=()=>{let [y,m]=viewMonth.split('-').map(Number);m++;if(m>12){m=1;y++}viewMonth=`${y}-${String(m).padStart(2,'0')}`;renderCalendar()};
 document.getElementById('goBtn').onclick=()=>{const v=document.getElementById('datePick').value;if(v){const hit=daySet.has(v)?v:nearestExisting(v,1)||nearestExisting(v,-1);if(hit)selectDate(hit)}};
 
 </script>
 </body></html>
-                                                                                                               
