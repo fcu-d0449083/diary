@@ -25,6 +25,8 @@ The LINE chat payload embedded in `index.html` is **not plaintext**. It is encry
 
 The browser derives the decryption key locally from the visitor-entered password. The password itself is not stored in plaintext in `index.html`.
 
+After unlocking, **更改全站密碼** can re-encrypt the current diary with a new password and download a replacement `index.html`. The downloaded file must replace the repository's `index.html` and be redeployed before all visitors use the new password. Passwords are entered and processed in the browser; they are not included in the downloaded source. Because the repository is public, choose a long, unique password.
+
 ## Published site
 
 The public GitHub Pages site is <https://fcu-d0449083.github.io/diary/>. Anyone can open the site and download the public repository, including its encrypted ciphertext. The password gate protects access to decrypted diary content; it does not restrict access to the website or source files. Use a long, unique password because public ciphertext permits offline password guesses.
