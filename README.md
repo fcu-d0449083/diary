@@ -21,6 +21,10 @@ The site decrypts the bundled payload in the browser after the visitor enters th
 
 To preserve encrypted updates created by an earlier version, the page may restore an existing encrypted update from this browser's IndexedDB after unlock. This compatibility read does not create, modify, or upload updates. Clearing site data removes that browser-local copy.
 
+## On-demand Thai translation
+
+When the selected date contains Thai messages, the conversation header offers a translation button. It asks for confirmation before sending anything. After confirmation, it sends only that date's Thai message bodies to the free ArgosOpenTech public demo at <https://translate.argosopentech.com> for Traditional Chinese translation. Speaker and timestamp fields are excluded, but names or personal details written inside a message body are included. The service handles submitted text under its own policies; avoid using the button if you do not want those messages sent to that service. Translations stay only in page memory and are not written to the public source, browser storage, or the encrypted diary. The public demo can be unavailable or rate-limited.
+
 ## Published site
 
 The public GitHub Pages site is <https://fcu-d0449083.github.io/diary/>. Anyone can open the site and download the public repository, including its encrypted ciphertext. The password gate controls client-side decryption; it does not make the site or source private. Use a long, unique password because public ciphertext allows offline guesses.
