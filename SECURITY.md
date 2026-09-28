@@ -12,6 +12,8 @@ The page has no TXT upload/import control and no in-page password-change control
 
 For compatibility, the page may read a previously saved encrypted diary update from this browser's IndexedDB after unlocking. It does not write new updates. This browser-local ciphertext is not uploaded or synchronized; clearing the site's browser data removes it.
 
+The optional Thai-to-Traditional-Chinese translation is a separate, user-triggered data flow. Before sending, the page asks for confirmation and identifies the ArgosOpenTech public demo. On confirmation, only Thai message bodies from the currently selected date are sent; speaker and timestamp fields, other dates, and the encrypted diary payload are excluded. Personal details written inside message bodies are still sent. Returned translations are held in page memory only. The external demo may process requests under its own policies and may be unavailable or rate-limited.
+
 ## Threat model
 
 A public static site cannot prevent attackers from downloading the ciphertext and attempting offline password guesses. Therefore password strength matters. A long, unique password is substantially safer than a short PIN. AES-GCM authentication ensures an incorrect password cannot silently produce a valid diary payload.
@@ -22,3 +24,4 @@ A public static site cannot prevent attackers from downloading the ciphertext an
 - Never commit raw LINE TXT files, plaintext diary exports, or private notes.
 - Any future data encryption must use a fresh random salt and IV.
 - Treat browser storage as local to the browser profile; anyone with access to that profile can access its stored data.
+
