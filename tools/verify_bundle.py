@@ -19,10 +19,14 @@ else:
         match = re.search(r"(?im)^Current diary password:\s*\n\s*`([^`]+)`", notes)
         if match and match.group(1) in html:
             errors.append("plaintext password from local private notes appears in index.html")
-    required_features = ["parseLineExport", "encryptDiary", "saveEncryptedDiary", "indexedDB.open"]
+    required_features = ["decryptDiary", "unlockDiary", "AES-GCM", "PBKDF2", "lineDiaryTabUnlock"]
     missing = [feature for feature in required_features if feature not in html]
     if missing:
-        errors.append("encrypted TXT import code is missing: " + ", ".join(missing))
+        errors.append("encrypted diary viewer code is missing: " + ", ".join(missing))
+    removed_features = ["parseLineExport", "importLineTxt", "importTxtBtn", "diaryTxtFile", "changePasswordBtn", "changePasswordPanel", "exportReencryptedSite", "exportReencryptedBtn"]
+    present = [feature for feature in removed_features if feature in html]
+    if present:
+        errors.append("removed browser controls are still present: " + ", ".join(present))
 
 for p in ROOT.rglob("*.txt"):
     errors.append(f"raw .txt file present in deploy tree: {p.relative_to(ROOT)}")
@@ -37,4 +41,3 @@ print("VERIFY OK")
 print("- encrypted index.html found")
 print("- plaintext password not present in index.html")
 print("- no .txt chat exports in deployment tree")
-
