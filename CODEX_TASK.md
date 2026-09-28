@@ -56,3 +56,5 @@ Only make deployment compatibility fixes if required.
 
 The import feature is an explicitly requested addition. Preserve the existing calendar, date navigation, language toggle, password gate, and client-side decryption behavior.
 
+Password rotation uses a browser-only flow: after unlocking with the current password, re-encrypt the current diary with a new password and download a replacement `index.html`. The visitor must redeploy that file for the new password to take effect for everyone. Never embed either password in source or send it to a server.
+
