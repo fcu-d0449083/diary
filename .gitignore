@@ -1,0 +1,9 @@
+# Never commit raw/private chat sources
+*.txt
+*LINE_Diary_Natcha*.html
+build_line_diary.py
+PRIVATE_NOTES.md
+*.zip
+.DS_Store
+Thumbs.db
+
