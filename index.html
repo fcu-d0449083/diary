@@ -27,6 +27,7 @@ button,input{font:inherit}
 .jump{padding:0 18px 16px;display:grid;grid-template-columns:1fr auto;gap:8px}.jump input{border:1px solid var(--line);background:white;border-radius:12px;padding:9px 10px;color:var(--ink)}.jump button{border:0;border-radius:12px;padding:0 14px;background:var(--accent);color:white;cursor:pointer}
 .summary{margin-top:auto;border-top:1px solid var(--line);padding:14px 18px 18px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#fff;border:1px solid #eadfce;border-radius:14px;padding:10px;text-align:center}.stat b{display:block;font-family:Georgia,serif;font-size:18px}.stat span{font-size:10px;color:var(--muted)}
 .import-panel{padding:0 18px 12px}.import-panel button{border:1px solid #d9cebd;border-radius:12px;padding:10px 12px;background:#fffaf3;color:#51483e;font-weight:700;cursor:pointer}.import-panel button:disabled{opacity:.6;cursor:wait}.import-panel p{font-size:11px;line-height:1.45;color:var(--muted);margin:8px 0 0}.import-status{min-height:1em;color:#536b45!important}
+.password-change{margin-top:8px}.password-change[hidden]{display:none}.password-change input[type=password]{width:100%;margin:5px 0;padding:9px;border:1px solid var(--line);border-radius:9px;background:white}.password-change label{display:block;margin:8px 0;font-size:11px;color:var(--muted)}.password-change .weak-ack{display:flex;gap:7px;align-items:flex-start}.password-change .weak-ack input{margin:2px 0 0}.password-change-status{min-height:1em;color:#536b45!important}
 .content{min-width:0;display:flex;flex-direction:column}.dayhead{padding:24px 28px 18px;border-bottom:1px solid var(--line);position:sticky;top:22px;z-index:5;background:rgba(255,250,241,.96);backdrop-filter:blur(10px)}.dayhead-row{display:flex;justify-content:space-between;gap:18px;align-items:flex-start}.date-title{font-family:Georgia,"Noto Serif Thai",serif;font-size:27px;margin:0}.date-sub{color:var(--muted);font-size:12px;margin-top:6px}.navday{display:flex;gap:8px}.navday button{border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px 12px;cursor:pointer}.navday button:disabled{opacity:.35;cursor:not-allowed}
 .messages{padding:25px 28px 36px;min-height:70vh;background-image:linear-gradient(rgba(118,92,62,.025) 1px,transparent 1px);background-size:100% 28px}.message{display:flex;margin:8px 0}.message.mine{justify-content:flex-end}.bubble{max-width:min(760px,78%);border-radius:16px;padding:10px 13px;box-shadow:0 2px 8px rgba(45,34,22,.05);border:1px solid rgba(90,70,50,.09);white-space:pre-wrap;word-break:break-word;line-height:1.5;font-size:14px}.mine .bubble{background:var(--mine);border-bottom-right-radius:5px}.theirs .bubble{background:var(--theirs);border-bottom-left-radius:5px}.sender{font-weight:700;font-size:11px;margin-bottom:4px;color:#6c6258}.time{font-size:9px;color:#958a7d;margin-top:5px;text-align:right}.system{justify-content:center}.system .bubble{background:var(--system);color:#6f665d;border-radius:999px;padding:6px 11px;font-size:11px;box-shadow:none;max-width:88%;text-align:center}.media{font-weight:700;letter-spacing:.1px}.empty-state{display:grid;place-items:center;text-align:center;color:var(--muted);min-height:55vh;padding:30px}.empty-state .book{font-size:54px;margin-bottom:10px}
 @media(max-width:900px){.app{grid-template-columns:1fr;padding:10px;gap:10px}.sidebar{position:relative;top:0;height:auto}.summary{margin-top:0}.dayhead{top:0}.messages{padding:18px 12px}.bubble{max-width:88%}.brand h1{font-size:23px}}
@@ -88,7 +89,7 @@ button,input{font:inherit}
       <div class="legend"><span id="less"></span><i class="sw" style="background:var(--h1)"></i><i class="sw" style="background:var(--h2)"></i><i class="sw" style="background:var(--h3)"></i><i class="sw" style="background:var(--h4)"></i><i class="sw" style="background:var(--h5)"></i><span id="more"></span></div>
     </div>
     <div class="jump"><input id="datePick" type="date"><button id="goBtn"></button></div>
-    <div class="import-panel"><input id="diaryTxtFile" type="file" accept=".txt,text/plain" hidden><button id="importTxtBtn" type="button"></button><p id="importHint"></p><p id="importStatus" class="import-status" role="status" aria-live="polite"></p></div>
+    <div class="import-panel"><input id="diaryTxtFile" type="file" accept=".txt,text/plain" hidden><button id="importTxtBtn" type="button"></button><p id="importHint"></p><p id="importStatus" class="import-status" role="status" aria-live="polite"></p><button id="changePasswordBtn" type="button">更改全站密碼 / เปลี่ยนรหัสผ่านเว็บไซต์</button><div id="changePasswordPanel" class="password-change" hidden><p>輸入新密碼兩次，會在此瀏覽器重新加密並下載新的 index.html。下載檔案需重新發布才會套用到所有人。公開網站的密文可被離線猜測，請使用長且唯一的密碼。</p><label>新密碼 / รหัสผ่านใหม่<input id="newDiaryPassword" type="password" autocomplete="new-password"></label><label>再次輸入 / ยืนยันรหัสผ่าน<input id="confirmDiaryPassword" type="password" autocomplete="new-password"></label><label class="weak-ack"><input id="weakPasswordAck" type="checkbox"><span>我了解短密碼在公開網站上較容易被猜中 / เข้าใจว่ารหัสผ่านสั้นเดาง่ายกว่า</span></label><button id="exportReencryptedBtn" type="button">重新加密並下載 index.html</button><p id="changePasswordStatus" class="password-change-status" role="status" aria-live="polite"></p></div></div>
     <div class="summary"><div class="stat"><b id="sDays"></b><span id="sDaysL"></span></div><div class="stat"><b id="sMsgs"></b><span id="sMsgsL"></span></div><div class="stat"><b id="sToday"></b><span id="sTodayL"></span></div></div>
   </aside>
   <main class="panel content" id="conversation">
@@ -137,6 +138,28 @@ async function encryptDiary(data,password){
   const cipher=await crypto.subtle.encrypt({name:"AES-GCM",iv},key,enc.encode(JSON.stringify(data)));
   const toB64=a=>{let s='';for(const b of a)s+=String.fromCharCode(b);return btoa(s)};
   return {version:1,salt:toB64(salt),iv:toB64(iv),data:toB64(new Uint8Array(cipher)),iterations:ENC.iterations};
+}
+async function exportReencryptedSite(){
+  const status=document.getElementById('changePasswordStatus'),button=document.getElementById('exportReencryptedBtn');
+  const nextPassword=document.getElementById('newDiaryPassword').value,confirmation=document.getElementById('confirmDiaryPassword').value;
+  status.textContent='';
+  if(!SESSION_PASSWORD||!DATA){status.textContent='請先解鎖日記 / กรุณาปลดล็อกก่อน';return}
+  if(!nextPassword||nextPassword!==confirmation){status.textContent='兩次密碼不一致 / รหัสผ่านไม่ตรงกัน';return}
+  if(nextPassword.length<12&&!document.getElementById('weakPasswordAck').checked){status.textContent='短密碼風險較高，請勾選確認或改用長密碼 / โปรดยืนยันความเสี่ยงหรือใช้รหัสผ่านที่ยาวขึ้น';return}
+  if(nextPassword===SESSION_PASSWORD){status.textContent='新密碼需與目前密碼不同 / รหัสผ่านใหม่ต้องต่างจากเดิม';return}
+  button.disabled=true;status.textContent='重新加密中… / กำลังเข้ารหัสใหม่…';
+  try{
+    const encrypted=await encryptDiary(DATA,nextPassword);
+    const response=await fetch(location.href,{cache:'no-store'});if(!response.ok)throw new Error('無法讀取目前網站檔案');
+    const source=await response.text(),marker=/const ENC = \{[\s\S]*?\n\};/;
+    if(!marker.test(source))throw new Error('找不到加密資料區塊');
+    const replacement='const ENC = '+JSON.stringify(encrypted)+';';
+    const updated=source.replace(marker,replacement),blob=new Blob([updated],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob),link=document.createElement('a');
+    link.href=url;link.download='index.html';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
+    status.textContent='已下載新的加密 index.html；請將它重新發布到 GitHub，網站才會對所有人使用新密碼。';
+    document.getElementById('newDiaryPassword').value='';document.getElementById('confirmDiaryPassword').value='';
+  }catch(e){status.textContent='改密失敗：'+(e.message||'未知錯誤')}
+  finally{button.disabled=false}
 }
 async function decryptEncrypted(payload,password){
   const enc=new TextEncoder(),baseKey=await crypto.subtle.importKey('raw',enc.encode(password),{name:'PBKDF2'},false,['deriveKey']);
@@ -296,6 +319,8 @@ document.getElementById('nextMonth').onclick=()=>{let [y,m]=viewMonth.split('-')
 document.getElementById('goBtn').onclick=()=>{const v=document.getElementById('datePick').value;if(v){const hit=daySet.has(v)?v:nearestExisting(v,1)||nearestExisting(v,-1);if(hit)selectDate(hit)}};
 document.getElementById('importTxtBtn').onclick=()=>document.getElementById('diaryTxtFile').click();
 document.getElementById('diaryTxtFile').addEventListener('change',e=>importLineTxt(e.target.files?.[0]));
+document.getElementById('changePasswordBtn').onclick=()=>{const panel=document.getElementById('changePasswordPanel');panel.hidden=!panel.hidden};
+document.getElementById('exportReencryptedBtn').onclick=exportReencryptedSite;
 
 </script>
 </body></html>
