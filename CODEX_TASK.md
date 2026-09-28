@@ -4,6 +4,10 @@ Target GitHub repository:
 
 `fcu-d0449083/diary`
 
+## Deployment status
+
+The repository is Public and GitHub Pages is published from `main` at `/` because the current plan does not permit Pages from a private repository. Public site: <https://fcu-d0449083.github.io/diary/>. Visitors can open the site and download the encrypted ciphertext; the password protects diary decryption, not website access. Do not use a short or reused password.
+
 ## Goal
 
 Deploy the existing encrypted static diary website from this folder to GitHub Pages without exposing plaintext LINE chat content.
@@ -23,7 +27,7 @@ Add a browser-only import feature for UTF-8 Chinese LINE TXT exports. Follow `LI
 3. Commit the deployment files to the repository's default branch.
 4. Keep the repository **Private initially**.
 5. Configure GitHub Pages to publish from the default branch root (`/`).
-6. If GitHub's current plan does not permit Pages from this private repository, the user has authorized changing `fcu-d0449083/diary` to **Public** solely so GitHub Pages can publish it.
+6. If GitHub's current plan does not permit Pages from this private repository, the user has authorized changing `fcu-d0449083/diary` to **Public** solely so GitHub Pages can publish it. This condition was met; the repository is now public.
 7. After publishing, verify the Pages URL loads the password screen on mobile Safari/desktop and that a wrong password does not reveal the diary. Verify the import feature keeps TXT contents local and persists only encrypted updates.
 8. Report the final Pages URL, repository visibility, and any local-only import limits.
 
