@@ -1,35 +1,23 @@
-# Codex task: update and deploy encrypted diary
+# Codex task: maintain encrypted diary deployment
 
-Target GitHub repository:
-
-`fcu-d0449083/diary`
+Target GitHub repository: `fcu-d0449083/diary`.
 
 ## Deployment status
 
-The repository is Public and GitHub Pages is published from `main` at `/` because the current plan does not permit Pages from a private repository. Public site: <https://fcu-d0449083.github.io/diary/>. Visitors can open the site and download the encrypted ciphertext; the password protects diary decryption, not website access. Do not use a short or reused password.
+The repository is Public and GitHub Pages is published from `main` at `/` because the current plan does not permit Pages from a private repository. Public site: <https://fcu-d0449083.github.io/diary/>. Visitors can open the site and download encrypted ciphertext; the password protects diary decryption, not website access.
 
 ## Goal
 
-Deploy the existing encrypted static diary website from this folder to GitHub Pages without exposing plaintext LINE chat content.
+Maintain the encrypted static diary website without exposing plaintext LINE chat content. The web page provides password-gated, client-side decryption and diary viewing. It does not provide TXT upload/import or an in-page password-change control. For convenience, the current tab keeps the password in `sessionStorage` and auto-unlocks after refresh; this is plaintext browser storage accessible to scripts running on the site.
 
-Add a browser-only import feature for UTF-8 Chinese LINE TXT exports. Follow `LINE_ZH_TO_THAI_RULES.md`: keep ordinary chat text byte-for-byte unchanged, convert supported system text and AM/PM times, and report conversion failures. Merge imported dates by replacing those days while keeping other dates. Re-encrypt the complete updated diary with the entered password and fresh random salt/IV before storing it locally in the browser. Do not upload raw TXT or plaintext messages. Document that static hosting cannot publish a browser import or synchronize it to another device.
+## Required steps for deployment changes
 
-## Required steps
-
-1. Inspect the working tree and verify that only safe deployment files are staged. Update the relevant Markdown documentation for import behavior and security.
-2. Run:
-
-   ```bash
-   python tools/verify_bundle.py
-   ```
-
-   Do not proceed if verification fails.
-3. Commit the deployment files to the repository's default branch.
-4. Keep the repository **Private initially**.
-5. Configure GitHub Pages to publish from the default branch root (`/`).
-6. If GitHub's current plan does not permit Pages from this private repository, the user has authorized changing `fcu-d0449083/diary` to **Public** solely so GitHub Pages can publish it. This condition was met; the repository is now public.
-7. After publishing, verify the Pages URL loads the password screen on mobile Safari/desktop and that a wrong password does not reveal the diary. Verify the import feature keeps TXT contents local and persists only encrypted updates.
-8. Report the final Pages URL, repository visibility, and any local-only import limits.
+1. Inspect the working tree and verify that only safe deployment files are included. Update relevant Markdown documentation.
+2. Run `python tools/verify_bundle.py`; do not proceed if verification fails.
+3. Publish approved changes to the repository default branch.
+4. Keep GitHub Pages configured to publish from the default branch root.
+5. After publishing, verify the Pages URL loads the password screen and that a wrong password does not reveal the diary. Confirm the upload and in-page password-change controls are absent.
+6. Report the Pages URL and repository visibility.
 
 ## Privacy requirements
 
@@ -40,21 +28,8 @@ Never commit any of the following:
 - `PRIVATE_NOTES.md`
 - any file containing the decryption password in plaintext
 
-If the repository is made Public, this rule is especially important. The public repository may contain JavaScript/CSS and encrypted ciphertext, but not plaintext chat data or the password.
+The public repository may contain JavaScript/CSS and encrypted ciphertext, but not plaintext chat data or the password.
 
-## Do not redesign unless necessary
+## Preserve the diary viewer
 
-Preserve the current diary UI and behavior:
-
-- calendar heatmap
-- click date to open that day's conversation
-- Simplified Chinese / Thai interface toggle
-- encrypted password gate
-- client-side decryption only
-
-Only make deployment compatibility fixes if required.
-
-The import feature is an explicitly requested addition. Preserve the existing calendar, date navigation, language toggle, password gate, and client-side decryption behavior.
-
-Password rotation uses a browser-only flow: after unlocking with the current password, re-encrypt the current diary with a new password and download a replacement `index.html`. The visitor must redeploy that file for the new password to take effect for everyone. Never embed either password in source or send it to a server.
-
+Keep the calendar heatmap, date navigation (including the bottom mobile controls), Chinese/Thai interface toggle, encrypted password gate, and client-side decryption behavior. Do not add file import/upload or in-page password rotation unless the user requests those features again.
