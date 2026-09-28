@@ -32,6 +32,8 @@ A public static site cannot prevent attackers from downloading the ciphertext an
 
 AES-GCM authentication ensures an incorrect key/password cannot silently produce a valid diary payload.
 
+The password-change control is available only after the current password unlocks the diary. It re-encrypts the current in-memory diary using a fresh random salt and IV, then downloads a replacement `index.html` containing ciphertext but no password. The downloaded file must be redeployed to change the password for all visitors. A short password requires an explicit in-page acknowledgement and remains vulnerable to offline guessing.
+
 ## Operational rules
 
 - Never place the password in JavaScript, README, commit messages, GitHub Actions logs, issues, or repository secrets unless a future deployment architecture explicitly requires it.
