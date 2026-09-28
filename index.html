@@ -230,7 +230,7 @@ function renderCalendar(){
 }
 function nearestExisting(ds,dir=1){let d=parseDate(ds);for(let i=0;i<800;i++){const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;if(daySet.has(k))return k;d.setDate(d.getDate()+dir)}return null}
 function selectDate(ds,scrollToHeader=true){selected=ds;viewMonth=ds.slice(0,7);document.getElementById('datePick').value=ds;renderAll();if(scrollToHeader)document.getElementById('conversation').scrollIntoView({behavior:'smooth',block:'start'})}
-function selectDateFromBottom(ds){selectDate(ds,false);requestAnimationFrame(()=>document.getElementById('dayfoot').scrollIntoView({behavior:'smooth',block:'end'}))}
+function selectDateFromBottom(ds){selectDate(ds,true)}
 function renderMessages(){
  const arr=DATA.days[selected]||[], box=document.getElementById('messages');document.getElementById('dateTitle').textContent=dateLong(selected);document.getElementById('dateSub').textContent=`${arr.length} ${UI[locale].entries}`;
  if(!arr.length){box.innerHTML=`<div class="empty-state"><div><div class="book">📖</div><div>${UI[locale].empty}</div></div></div>`;return}
@@ -263,3 +263,4 @@ document.getElementById('goBtn').onclick=()=>{const v=document.getElementById('d
 
 </script>
 </body></html>
+                                                                                                               
