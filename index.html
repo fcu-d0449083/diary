@@ -152,8 +152,8 @@ async function unlockDiary(passwordOverride=null){
   const input=document.getElementById("unlockPassword");
   const err=document.getElementById("unlockError");
   btn.disabled=true; btn.textContent="解密中… / กำลังถอดรหัส…"; err.textContent="";
+  const password=passwordOverride===null?input.value:passwordOverride;
   try{
-    const password=passwordOverride===null?input.value:passwordOverride;
     DATA=await decryptDiary(password);
     try{const saved=await readSavedDiary();if(saved)DATA=await decryptEncrypted(saved,password)}catch(e){SAVED_UPDATE_WARNING=true}
     try{sessionStorage.setItem("lineDiaryTabUnlock",password)}catch(e){}
@@ -174,7 +174,7 @@ async function unlockDiary(passwordOverride=null){
     btn.disabled=false; btn.textContent="打开日记 / เปิดไดอารี่";
   }
 }
-document.getElementById("unlockBtn").onclick=unlockDiary;
+document.getElementById("unlockBtn").onclick=()=>unlockDiary();
 document.getElementById("unlockPassword").addEventListener("keydown",e=>{if(e.key==="Enter")unlockDiary();});
 try{const rememberedPassword=sessionStorage.getItem("lineDiaryTabUnlock");if(rememberedPassword)unlockDiary(rememberedPassword)}catch(e){}
 
