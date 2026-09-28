@@ -153,8 +153,10 @@ async function unlockDiary(passwordOverride=null){
   const err=document.getElementById("unlockError");
   btn.disabled=true; btn.textContent="解密中… / กำลังถอดรหัส…"; err.textContent="";
   const password=passwordOverride===null?input.value:passwordOverride;
+  let passwordVerified=false;
   try{
     DATA=await decryptDiary(password);
+    passwordVerified=true;
     try{const saved=await readSavedDiary();if(saved)DATA=await decryptEncrypted(saved,password)}catch(e){SAVED_UPDATE_WARNING=true}
     try{sessionStorage.setItem("lineDiaryTabUnlock",password)}catch(e){}
     refreshDataState();
@@ -168,8 +170,8 @@ async function unlockDiary(passwordOverride=null){
     if(SAVED_UPDATE_WARNING)document.getElementById('savedDataStatus').textContent=locale==='th'?'ไม่สามารถเปิดข้อมูลเข้ารหัสเดิมในเบราว์เซอร์ได้ กำลังแสดงข้อมูลบนเว็บไซต์':'无法读取此浏览器中已有的加密更新，目前显示网站内置资料';
   }catch(e){
     try{if(sessionStorage.getItem("lineDiaryTabUnlock")===password)sessionStorage.removeItem("lineDiaryTabUnlock")}catch(storageError){}
-    err.textContent="密码错误 / รหัสผ่านไม่ถูกต้อง";
-    if(passwordOverride===null)input.select();
+    if(passwordVerified){document.getElementById("diaryApp").style.display="none";document.getElementById("lockScreen").style.display="grid";err.textContent="日记载入失败 / ไม่สามารถโหลดสมุดบันทึกได้"}
+    else{err.textContent="密码错误 / รหัสผ่านไม่ถูกต้อง";if(passwordOverride===null)input.select()}
   }finally{
     btn.disabled=false; btn.textContent="打开日记 / เปิดไดอารี่";
   }
@@ -252,6 +254,7 @@ function renderNav(){
 }
 function renderSummary(){document.getElementById('sDays').textContent=DATA.meta.dayCount.toLocaleString();document.getElementById('sMsgs').textContent=DATA.meta.messageCount.toLocaleString();document.getElementById('sToday').textContent=(DATA.days[selected]?.length||0).toLocaleString();document.getElementById('sDaysL').textContent=UI[locale].days;document.getElementById('sMsgsL').textContent=UI[locale].msgs;document.getElementById('sTodayL').textContent=UI[locale].today;document.getElementById('goBtn').textContent=UI[locale].go;document.getElementById('range').textContent=rangeText()}
 
+function renderAll(){renderCalendar();renderMessages();renderNav();renderSummary()}
 document.getElementById('zhBtn').onclick=()=>{locale='zh';localStorage.setItem('lineDiaryLocale',locale);renderAll()};
 document.getElementById('thBtn').onclick=()=>{locale='th';localStorage.setItem('lineDiaryLocale',locale);renderAll()};
 document.getElementById('prevMonth').onclick=()=>{let [y,m]=viewMonth.split('-').map(Number);m--;if(m<1){m=12;y--}viewMonth=`${y}-${String(m).padStart(2,'0')}`;renderCalendar()};
