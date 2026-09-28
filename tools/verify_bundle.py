@@ -19,7 +19,7 @@ else:
         match = re.search(r"(?im)^Current diary password:\s*\n\s*`([^`]+)`", notes)
         if match and match.group(1) in html:
             errors.append("plaintext password from local private notes appears in index.html")
-    required_features = ["decryptDiary", "unlockDiary", "AES-GCM", "PBKDF2", "lineDiaryTabUnlock"]
+    required_features = ["decryptDiary", "unlockDiary", "renderAll", "renderCalendar", "renderMessages", "renderNav", "renderSummary", "AES-GCM", "PBKDF2", "lineDiaryTabUnlock"]
     missing = [feature for feature in required_features if feature not in html]
     if missing:
         errors.append("encrypted diary viewer code is missing: " + ", ".join(missing))
@@ -41,3 +41,4 @@ print("VERIFY OK")
 print("- encrypted index.html found")
 print("- plaintext password not present in index.html")
 print("- no .txt chat exports in deployment tree")
+
